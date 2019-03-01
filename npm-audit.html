@@ -1,0 +1,740 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.0/css/bootstrap.min.css" integrity="sha384-9gVQ4dYFwwWSjIDZnLEWnxCjeSWFphJiwGPXr1jddIhOegiu1FwO5qRGvFXOdJZ4"
+        crossorigin="anonymous">
+
+    <title>NPM Audit Report</title>
+    <meta name="description" content="153 known vulnerabilities found.">
+
+    <style>
+        .card {
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="row">
+            <div class="col-md text-center">
+                <h1>NPM Audit Report</h1>
+
+                <h2>153 known vulnerabilities | 21376 dependencies |
+                    March 1st 2019, 8:06:28 pm</h2>
+                </p>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-body">
+                        <h1 class="card-title">
+                            <span class="badge badge-warning">high</span>
+                            Regular Expression Denial of Service
+                        </h1>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <ul>
+                                    <li>Module:
+                                        <a href="https://npmjs.com/package/minimatch">minimatch</a>
+                                    </li>
+                                    <li>Published: May 25th 2016 </li>
+                                    <li>Reported by: Nick Starke</li>
+                                    <li>CWE-400</li>
+                                    <li>CVE-2016-10540</li>
+                                </ul>
+                            </div>
+                            <div class="col-md-6">
+                                <ul>
+                                    <li>Vulnerable: &lt;&#x3D;3.0.1</li>
+                                    <li>Patched: &gt;&#x3D;3.0.2</li>
+                                    <li>CVSS: 4</li>
+                                </ul>
+                            </div>
+                        </div>
+                        <h3>Overview</h3>
+                        <p class="card-text"><p>Affected versions of <code>minimatch</code> are vulnerable to regular expression denial of service attacks when user input is passed into the <code>pattern</code> argument of <code>minimatch(path, pattern)</code>.</p>
+<h2 id="proof-of-concept">Proof of Concept</h2>
+<pre><code>var minimatch = require(“minimatch”);
+
+// utility function for generating long strings
+var genstr = function (len, chr) {
+  var result = “”;
+  for (i=0; i&lt;=len; i++) {
+    result = result + chr;
+  }
+  return result;
+}
+
+var exploit = “[!” + genstr(1000000, “\\”) + “A”;
+
+// minimatch exploit.
+console.log(“starting minimatch”);
+minimatch(“foo”, exploit);
+console.log(“finishing minimatch”);</code></pre></p>
+
+                        <h3>Findings</h3>
+							<ul>
+								<li>gulp-copy&gt;gulp&gt;vinyl-fs&gt;glob-stream&gt;glob&gt;minimatch </li>
+								<li>gulp-copy&gt;gulp&gt;vinyl-fs&gt;glob-stream&gt;minimatch </li>
+							</ul>
+							<ul>
+								<li>gulp-copy&gt;gulp&gt;vinyl-fs&gt;glob-watcher&gt;gaze&gt;globule&gt;glob&gt;minimatch </li>
+								<li>gulp-copy&gt;gulp&gt;vinyl-fs&gt;glob-watcher&gt;gaze&gt;globule&gt;minimatch </li>
+							</ul>
+
+                        <h3>Remediation</h3>
+                        <p class="card-text"><p>Update to version 3.0.2 or later.</p>
+</p>
+                          
+                        <a href="https://npmjs.com/advisories/118" class="btn btn-primary">More about this vulnerability</a>
+                    </div>
+                </div>
+            </div>            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-body">
+                        <h1 class="card-title">
+                            <span class="badge badge-secondary">moderate</span>
+                            Prototype Pollution
+                        </h1>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <ul>
+                                    <li>Module:
+                                        <a href="https://npmjs.com/package/hoek">hoek</a>
+                                    </li>
+                                    <li>Published: April 20th 2018 </li>
+                                    <li>Reported by: HoLyVieR</li>
+                                    <li>CWE-471</li>
+                                </ul>
+                            </div>
+                            <div class="col-md-6">
+                                <ul>
+                                    <li>Vulnerable: &lt;&#x3D; 4.2.0 || &gt;&#x3D; 5.0.0 &lt; 5.0.3</li>
+                                    <li>Patched: &gt; 4.2.0 &lt; 5.0.0 || &gt;&#x3D; 5.0.3</li>
+                                    <li>CVSS: 5</li>
+                                </ul>
+                            </div>
+                        </div>
+                        <h3>Overview</h3>
+                        <p class="card-text"><p>Versions of <code>hoek</code> prior to 4.2.1 and 5.0.3 are vulnerable to prototype pollution.</p>
+<p>The <code>merge</code> function, and the <code>applyToDefaults</code> and <code>applyToDefaultsWithShallow</code> functions which leverage <code>merge</code> behind the scenes, are vulnerable to a prototype pollution attack when provided an <em>unvalidated</em> payload created from a JSON string containing the <code>__proto__</code> property.</p>
+<p>This can be demonstrated like so:</p>
+<pre><code class="language-javascript">var Hoek = require(&#39;hoek&#39;);
+var malicious_payload = &#39;{&quot;__proto__&quot;:{&quot;oops&quot;:&quot;It works !&quot;}}&#39;;
+
+var a = {};
+console.log(&quot;Before : &quot; + a.oops);
+Hoek.merge({}, JSON.parse(malicious_payload));
+console.log(&quot;After : &quot; + a.oops);</code></pre>
+<p>This type of attack can be used to overwrite existing properties causing a potential denial of service.</p>
+</p>
+
+                        <h3>Findings</h3>
+							<ul>
+								<li>electron-rebuild&gt;node-gyp&gt;request&gt;hawk&gt;boom&gt;hoek </li>
+								<li>electron-rebuild&gt;node-gyp&gt;request&gt;hawk&gt;cryptiles&gt;boom&gt;hoek </li>
+								<li>electron-rebuild&gt;node-gyp&gt;request&gt;hawk&gt;hoek </li>
+								<li>electron-rebuild&gt;node-gyp&gt;request&gt;hawk&gt;sntp&gt;hoek </li>
+								<li>node-gyp&gt;request&gt;hawk&gt;boom&gt;hoek </li>
+								<li>node-gyp&gt;request&gt;hawk&gt;cryptiles&gt;boom&gt;hoek </li>
+								<li>node-gyp&gt;request&gt;hawk&gt;hoek </li>
+								<li>node-gyp&gt;request&gt;hawk&gt;sntp&gt;hoek </li>
+							</ul>
+
+                        <h3>Remediation</h3>
+                        <p class="card-text"><p>Update to version 4.2.1, 5.0.3 or later.</p>
+</p>
+                          
+                        <a href="https://npmjs.com/advisories/566" class="btn btn-primary">More about this vulnerability</a>
+                    </div>
+                </div>
+            </div>            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-body">
+                        <h1 class="card-title">
+                            <span class="badge badge-primary">low</span>
+                            Prototype Pollution
+                        </h1>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <ul>
+                                    <li>Module:
+                                        <a href="https://npmjs.com/package/lodash">lodash</a>
+                                    </li>
+                                    <li>Published: April 24th 2018 </li>
+                                    <li>Reported by: Olivier Arteau (HoLyVieR)</li>
+                                    <li>CWE-471</li>
+                                    <li>CVE-2018-3721</li>
+                                </ul>
+                            </div>
+                            <div class="col-md-6">
+                                <ul>
+                                    <li>Vulnerable: &lt;4.17.5</li>
+                                    <li>Patched: &gt;&#x3D;4.17.5</li>
+                                    <li>CVSS: 1</li>
+                                </ul>
+                            </div>
+                        </div>
+                        <h3>Overview</h3>
+                        <p class="card-text"><p>Versions of <code>lodash</code> before 4.17.5 are vulnerable to prototype pollution. </p>
+<p>The vulnerable functions are &#39;defaultsDeep&#39;, &#39;merge&#39;, and &#39;mergeWith&#39; which allow a malicious user to modify the prototype of <code>Object</code> via <code>__proto__</code> causing the addition or modification of an existing property that will exist on all objects.</p>
+</p>
+
+                        <h3>Findings</h3>
+							<ul>
+								<li>gulp-copy&gt;gulp&gt;vinyl-fs&gt;glob-watcher&gt;gaze&gt;globule&gt;lodash </li>
+							</ul>
+
+                        <h3>Remediation</h3>
+                        <p class="card-text"><p>Update to version 4.17.5 or later.</p>
+</p>
+                         
+                        <h3>References</h3>
+                        <p class="card-text"><ul>
+<li><a href="https://hackerone.com/reports/310443">HackerOne Report</a></li>
+</ul>
+</p>
+                         
+                        <a href="https://npmjs.com/advisories/577" class="btn btn-primary">More about this vulnerability</a>
+                    </div>
+                </div>
+            </div>            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-body">
+                        <h1 class="card-title">
+                            <span class="badge badge-primary">low</span>
+                            Prototype Pollution
+                        </h1>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <ul>
+                                    <li>Module:
+                                        <a href="https://npmjs.com/package/mixin-deep">mixin-deep</a>
+                                    </li>
+                                    <li>Published: April 24th 2018 </li>
+                                    <li>Reported by: Olivier Arteau (HoLyVieR)</li>
+                                    <li>CWE-471</li>
+                                    <li>CVE-2018-3719</li>
+                                </ul>
+                            </div>
+                            <div class="col-md-6">
+                                <ul>
+                                    <li>Vulnerable: &lt;1.3.1</li>
+                                    <li>Patched: &gt;&#x3D;1.3.1</li>
+                                    <li>CVSS: 1</li>
+                                </ul>
+                            </div>
+                        </div>
+                        <h3>Overview</h3>
+                        <p class="card-text"><p>Versions of <code>mixin-deep</code> before 1.3.1 are vulnerable to prototype pollution via merging functions.</p>
+</p>
+
+                        <h3>Findings</h3>
+							<ul>
+								<li>chokidar&gt;anymatch&gt;micromatch&gt;braces&gt;snapdragon&gt;base&gt;mixin-deep </li>
+								<li>chokidar&gt;anymatch&gt;micromatch&gt;extglob&gt;expand-brackets&gt;snapdragon&gt;base&gt;mixin-deep </li>
+								<li>chokidar&gt;anymatch&gt;micromatch&gt;extglob&gt;snapdragon&gt;base&gt;mixin-deep </li>
+								<li>chokidar&gt;anymatch&gt;micromatch&gt;nanomatch&gt;snapdragon&gt;base&gt;mixin-deep </li>
+								<li>chokidar&gt;anymatch&gt;micromatch&gt;snapdragon&gt;base&gt;mixin-deep </li>
+								<li>chokidar&gt;braces&gt;snapdragon&gt;base&gt;mixin-deep </li>
+								<li>chokidar&gt;readdirp&gt;micromatch&gt;braces&gt;snapdragon&gt;base&gt;mixin-deep </li>
+								<li>chokidar&gt;readdirp&gt;micromatch&gt;extglob&gt;expand-brackets&gt;snapdragon&gt;base&gt;mixin-deep </li>
+								<li>chokidar&gt;readdirp&gt;micromatch&gt;extglob&gt;snapdragon&gt;base&gt;mixin-deep </li>
+								<li>chokidar&gt;readdirp&gt;micromatch&gt;nanomatch&gt;snapdragon&gt;base&gt;mixin-deep </li>
+								<li>chokidar&gt;readdirp&gt;micromatch&gt;snapdragon&gt;base&gt;mixin-deep </li>
+								<li>gulp&gt;glob-watcher&gt;chokidar&gt;anymatch&gt;micromatch&gt;braces&gt;snapdragon&gt;base&gt;mixin-deep </li>
+								<li>gulp&gt;glob-watcher&gt;chokidar&gt;anymatch&gt;micromatch&gt;extglob&gt;expand-brackets&gt;snapdragon&gt;base&gt;mixin-deep </li>
+								<li>gulp&gt;glob-watcher&gt;chokidar&gt;anymatch&gt;micromatch&gt;extglob&gt;snapdragon&gt;base&gt;mixin-deep </li>
+								<li>gulp&gt;glob-watcher&gt;chokidar&gt;anymatch&gt;micromatch&gt;nanomatch&gt;snapdragon&gt;base&gt;mixin-deep </li>
+								<li>gulp&gt;glob-watcher&gt;chokidar&gt;anymatch&gt;micromatch&gt;snapdragon&gt;base&gt;mixin-deep </li>
+								<li>gulp&gt;glob-watcher&gt;chokidar&gt;braces&gt;snapdragon&gt;base&gt;mixin-deep </li>
+								<li>gulp&gt;glob-watcher&gt;chokidar&gt;readdirp&gt;micromatch&gt;braces&gt;snapdragon&gt;base&gt;mixin-deep </li>
+								<li>gulp&gt;glob-watcher&gt;chokidar&gt;readdirp&gt;micromatch&gt;extglob&gt;expand-brackets&gt;snapdragon&gt;base&gt;mixin-deep </li>
+								<li>gulp&gt;glob-watcher&gt;chokidar&gt;readdirp&gt;micromatch&gt;extglob&gt;snapdragon&gt;base&gt;mixin-deep </li>
+								<li>gulp&gt;glob-watcher&gt;chokidar&gt;readdirp&gt;micromatch&gt;nanomatch&gt;snapdragon&gt;base&gt;mixin-deep </li>
+								<li>gulp&gt;glob-watcher&gt;chokidar&gt;readdirp&gt;micromatch&gt;snapdragon&gt;base&gt;mixin-deep </li>
+								<li>gulp&gt;gulp-cli&gt;liftoff&gt;findup-sync&gt;micromatch&gt;braces&gt;snapdragon&gt;base&gt;mixin-deep </li>
+								<li>gulp&gt;gulp-cli&gt;liftoff&gt;findup-sync&gt;micromatch&gt;extglob&gt;expand-brackets&gt;snapdragon&gt;base&gt;mixin-deep </li>
+								<li>gulp&gt;gulp-cli&gt;liftoff&gt;findup-sync&gt;micromatch&gt;extglob&gt;snapdragon&gt;base&gt;mixin-deep </li>
+								<li>gulp&gt;gulp-cli&gt;liftoff&gt;findup-sync&gt;micromatch&gt;nanomatch&gt;snapdragon&gt;base&gt;mixin-deep </li>
+								<li>gulp&gt;gulp-cli&gt;liftoff&gt;findup-sync&gt;micromatch&gt;snapdragon&gt;base&gt;mixin-deep </li>
+								<li>gulp&gt;gulp-cli&gt;matchdep&gt;findup-sync&gt;micromatch&gt;braces&gt;snapdragon&gt;base&gt;mixin-deep </li>
+								<li>gulp&gt;gulp-cli&gt;matchdep&gt;findup-sync&gt;micromatch&gt;extglob&gt;expand-brackets&gt;snapdragon&gt;base&gt;mixin-deep </li>
+								<li>gulp&gt;gulp-cli&gt;matchdep&gt;findup-sync&gt;micromatch&gt;extglob&gt;snapdragon&gt;base&gt;mixin-deep </li>
+								<li>gulp&gt;gulp-cli&gt;matchdep&gt;findup-sync&gt;micromatch&gt;nanomatch&gt;snapdragon&gt;base&gt;mixin-deep </li>
+								<li>gulp&gt;gulp-cli&gt;matchdep&gt;findup-sync&gt;micromatch&gt;snapdragon&gt;base&gt;mixin-deep </li>
+								<li>gulp&gt;gulp-cli&gt;matchdep&gt;micromatch&gt;braces&gt;snapdragon&gt;base&gt;mixin-deep </li>
+								<li>gulp&gt;gulp-cli&gt;matchdep&gt;micromatch&gt;extglob&gt;expand-brackets&gt;snapdragon&gt;base&gt;mixin-deep </li>
+								<li>gulp&gt;gulp-cli&gt;matchdep&gt;micromatch&gt;extglob&gt;snapdragon&gt;base&gt;mixin-deep </li>
+								<li>gulp&gt;gulp-cli&gt;matchdep&gt;micromatch&gt;nanomatch&gt;snapdragon&gt;base&gt;mixin-deep </li>
+								<li>gulp&gt;gulp-cli&gt;matchdep&gt;micromatch&gt;snapdragon&gt;base&gt;mixin-deep </li>
+								<li>gulp-copy&gt;gulp&gt;liftoff&gt;findup-sync&gt;micromatch&gt;braces&gt;snapdragon&gt;base&gt;mixin-deep </li>
+								<li>gulp-copy&gt;gulp&gt;liftoff&gt;findup-sync&gt;micromatch&gt;extglob&gt;expand-brackets&gt;snapdragon&gt;base&gt;mixin-deep </li>
+								<li>gulp-copy&gt;gulp&gt;liftoff&gt;findup-sync&gt;micromatch&gt;extglob&gt;snapdragon&gt;base&gt;mixin-deep </li>
+								<li>gulp-copy&gt;gulp&gt;liftoff&gt;findup-sync&gt;micromatch&gt;nanomatch&gt;snapdragon&gt;base&gt;mixin-deep </li>
+								<li>gulp-copy&gt;gulp&gt;liftoff&gt;findup-sync&gt;micromatch&gt;snapdragon&gt;base&gt;mixin-deep </li>
+								<li>gulp-watch&gt;chokidar&gt;anymatch&gt;micromatch&gt;braces&gt;snapdragon&gt;base&gt;mixin-deep </li>
+								<li>gulp-watch&gt;chokidar&gt;anymatch&gt;micromatch&gt;extglob&gt;expand-brackets&gt;snapdragon&gt;base&gt;mixin-deep </li>
+								<li>gulp-watch&gt;chokidar&gt;anymatch&gt;micromatch&gt;extglob&gt;snapdragon&gt;base&gt;mixin-deep </li>
+								<li>gulp-watch&gt;chokidar&gt;anymatch&gt;micromatch&gt;nanomatch&gt;snapdragon&gt;base&gt;mixin-deep </li>
+								<li>gulp-watch&gt;chokidar&gt;anymatch&gt;micromatch&gt;snapdragon&gt;base&gt;mixin-deep </li>
+								<li>gulp-watch&gt;chokidar&gt;braces&gt;snapdragon&gt;base&gt;mixin-deep </li>
+								<li>gulp-watch&gt;chokidar&gt;readdirp&gt;micromatch&gt;braces&gt;snapdragon&gt;base&gt;mixin-deep </li>
+								<li>gulp-watch&gt;chokidar&gt;readdirp&gt;micromatch&gt;extglob&gt;expand-brackets&gt;snapdragon&gt;base&gt;mixin-deep </li>
+								<li>gulp-watch&gt;chokidar&gt;readdirp&gt;micromatch&gt;extglob&gt;snapdragon&gt;base&gt;mixin-deep </li>
+								<li>gulp-watch&gt;chokidar&gt;readdirp&gt;micromatch&gt;nanomatch&gt;snapdragon&gt;base&gt;mixin-deep </li>
+								<li>gulp-watch&gt;chokidar&gt;readdirp&gt;micromatch&gt;snapdragon&gt;base&gt;mixin-deep </li>
+								<li>webpack&gt;watchpack&gt;chokidar&gt;anymatch&gt;micromatch&gt;braces&gt;snapdragon&gt;base&gt;mixin-deep </li>
+								<li>webpack&gt;watchpack&gt;chokidar&gt;anymatch&gt;micromatch&gt;extglob&gt;expand-brackets&gt;snapdragon&gt;base&gt;mixin-deep </li>
+								<li>webpack&gt;watchpack&gt;chokidar&gt;anymatch&gt;micromatch&gt;extglob&gt;snapdragon&gt;base&gt;mixin-deep </li>
+								<li>webpack&gt;watchpack&gt;chokidar&gt;anymatch&gt;micromatch&gt;nanomatch&gt;snapdragon&gt;base&gt;mixin-deep </li>
+								<li>webpack&gt;watchpack&gt;chokidar&gt;anymatch&gt;micromatch&gt;snapdragon&gt;base&gt;mixin-deep </li>
+								<li>webpack&gt;watchpack&gt;chokidar&gt;braces&gt;snapdragon&gt;base&gt;mixin-deep </li>
+								<li>webpack&gt;watchpack&gt;chokidar&gt;readdirp&gt;micromatch&gt;braces&gt;snapdragon&gt;base&gt;mixin-deep </li>
+								<li>webpack&gt;watchpack&gt;chokidar&gt;readdirp&gt;micromatch&gt;extglob&gt;expand-brackets&gt;snapdragon&gt;base&gt;mixin-deep </li>
+								<li>webpack&gt;watchpack&gt;chokidar&gt;readdirp&gt;micromatch&gt;extglob&gt;snapdragon&gt;base&gt;mixin-deep </li>
+								<li>webpack&gt;watchpack&gt;chokidar&gt;readdirp&gt;micromatch&gt;nanomatch&gt;snapdragon&gt;base&gt;mixin-deep </li>
+								<li>webpack&gt;watchpack&gt;chokidar&gt;readdirp&gt;micromatch&gt;snapdragon&gt;base&gt;mixin-deep </li>
+							</ul>
+
+                        <h3>Remediation</h3>
+                        <p class="card-text"><p>Update to version 1.3.1 or later.</p>
+</p>
+                         
+                        <h3>References</h3>
+                        <p class="card-text"><ul>
+<li><a href="https://hackerone.com/reports/311236">HackerOne Report</a></li>
+</ul>
+</p>
+                         
+                        <a href="https://npmjs.com/advisories/578" class="btn btn-primary">More about this vulnerability</a>
+                    </div>
+                </div>
+            </div>            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-body">
+                        <h1 class="card-title">
+                            <span class="badge badge-warning">high</span>
+                            Regular Expression Denial of Service
+                        </h1>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <ul>
+                                    <li>Module:
+                                        <a href="https://npmjs.com/package/sshpk">sshpk</a>
+                                    </li>
+                                    <li>Published: April 24th 2018 </li>
+                                    <li>Reported by: Сковорода Никита Андреевич</li>
+                                    <li>CWE-400</li>
+                                    <li>CVE-2018-3737</li>
+                                </ul>
+                            </div>
+                            <div class="col-md-6">
+                                <ul>
+                                    <li>Vulnerable: &lt;1.13.2 || &gt;&#x3D;1.14.0 &lt;1.14.1</li>
+                                    <li>Patched: &gt;&#x3D;1.13.2 &lt; 1.14.0 || &gt;&#x3D;1.14.1</li>
+                                    <li>CVSS: 5</li>
+                                </ul>
+                            </div>
+                        </div>
+                        <h3>Overview</h3>
+                        <p class="card-text"><p>Versions of <code>sshpk</code> before 1.13.2 or 1.14.1 are vulnerable to regular expression denial of service when parsing crafted invalid public keys.</p>
+</p>
+
+                        <h3>Findings</h3>
+							<ul>
+								<li>asar&gt;mksnapshot&gt;request&gt;http-signature&gt;sshpk </li>
+								<li>node-sass&gt;node-gyp&gt;request&gt;http-signature&gt;sshpk </li>
+								<li>node-sass&gt;request&gt;http-signature&gt;sshpk </li>
+								<li>electron&gt;electron-download&gt;nugget&gt;request&gt;http-signature&gt;sshpk </li>
+								<li>electron-rebuild&gt;node-gyp&gt;request&gt;http-signature&gt;sshpk </li>
+								<li>node-gyp&gt;request&gt;http-signature&gt;sshpk </li>
+							</ul>
+
+                        <h3>Remediation</h3>
+                        <p class="card-text"><p>Update to version 1.13.2, 1.14.1 or later.</p>
+</p>
+                         
+                        <h3>References</h3>
+                        <p class="card-text"><ul>
+<li><a href="https://github.com/joyent/node-sshpk/blob/v1.13.1/lib/formats/ssh.js#L17">https://github.com/joyent/node-sshpk/blob/v1.13.1/lib/formats/ssh.js#L17</a></li>
+<li><a href="https://hackerone.com/reports/319593">HackerOne Report</a></li>
+<li><a href="https://github.com/joyent/node-sshpk/commit/46065d38a5e6d1bccf86d3efb2fb83c14e3f9957">https://github.com/joyent/node-sshpk/commit/46065d38a5e6d1bccf86d3efb2fb83c14e3f9957</a></li>
+</ul>
+</p>
+                         
+                        <a href="https://npmjs.com/advisories/606" class="btn btn-primary">More about this vulnerability</a>
+                    </div>
+                </div>
+            </div>            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-body">
+                        <h1 class="card-title">
+                            <span class="badge badge-secondary">moderate</span>
+                            Out-of-bounds Read
+                        </h1>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <ul>
+                                    <li>Module:
+                                        <a href="https://npmjs.com/package/atob">atob</a>
+                                    </li>
+                                    <li>Published: May 16th 2018 </li>
+                                    <li>Reported by: Сковорода Никита Андреевич</li>
+                                    <li>CWE-125</li>
+                                </ul>
+                            </div>
+                            <div class="col-md-6">
+                                <ul>
+                                    <li>Vulnerable: &lt;&#x3D;2.0.3</li>
+                                    <li>Patched: &gt;&#x3D;2.1.0</li>
+                                    <li>CVSS: 2</li>
+                                </ul>
+                            </div>
+                        </div>
+                        <h3>Overview</h3>
+                        <p class="card-text"><p>Versions of <code>atob</code> before 2.1.0  uninitialized Buffers when number is passed in input on Node.js 4.x and below.</p>
+</p>
+
+                        <h3>Findings</h3>
+							<ul>
+								<li>chokidar&gt;anymatch&gt;micromatch&gt;braces&gt;snapdragon&gt;source-map-resolve&gt;atob </li>
+								<li>chokidar&gt;anymatch&gt;micromatch&gt;extglob&gt;expand-brackets&gt;snapdragon&gt;source-map-resolve&gt;atob </li>
+								<li>chokidar&gt;anymatch&gt;micromatch&gt;extglob&gt;snapdragon&gt;source-map-resolve&gt;atob </li>
+								<li>chokidar&gt;anymatch&gt;micromatch&gt;nanomatch&gt;snapdragon&gt;source-map-resolve&gt;atob </li>
+								<li>chokidar&gt;anymatch&gt;micromatch&gt;snapdragon&gt;source-map-resolve&gt;atob </li>
+								<li>chokidar&gt;braces&gt;snapdragon&gt;source-map-resolve&gt;atob </li>
+								<li>chokidar&gt;readdirp&gt;micromatch&gt;braces&gt;snapdragon&gt;source-map-resolve&gt;atob </li>
+								<li>chokidar&gt;readdirp&gt;micromatch&gt;extglob&gt;expand-brackets&gt;snapdragon&gt;source-map-resolve&gt;atob </li>
+								<li>chokidar&gt;readdirp&gt;micromatch&gt;extglob&gt;snapdragon&gt;source-map-resolve&gt;atob </li>
+								<li>chokidar&gt;readdirp&gt;micromatch&gt;nanomatch&gt;snapdragon&gt;source-map-resolve&gt;atob </li>
+								<li>chokidar&gt;readdirp&gt;micromatch&gt;snapdragon&gt;source-map-resolve&gt;atob </li>
+								<li>gulp&gt;glob-watcher&gt;chokidar&gt;anymatch&gt;micromatch&gt;braces&gt;snapdragon&gt;source-map-resolve&gt;atob </li>
+								<li>gulp&gt;glob-watcher&gt;chokidar&gt;anymatch&gt;micromatch&gt;extglob&gt;expand-brackets&gt;snapdragon&gt;source-map-resolve&gt;atob </li>
+								<li>gulp&gt;glob-watcher&gt;chokidar&gt;anymatch&gt;micromatch&gt;extglob&gt;snapdragon&gt;source-map-resolve&gt;atob </li>
+								<li>gulp&gt;glob-watcher&gt;chokidar&gt;anymatch&gt;micromatch&gt;nanomatch&gt;snapdragon&gt;source-map-resolve&gt;atob </li>
+								<li>gulp&gt;glob-watcher&gt;chokidar&gt;anymatch&gt;micromatch&gt;snapdragon&gt;source-map-resolve&gt;atob </li>
+								<li>gulp&gt;glob-watcher&gt;chokidar&gt;braces&gt;snapdragon&gt;source-map-resolve&gt;atob </li>
+								<li>gulp&gt;glob-watcher&gt;chokidar&gt;readdirp&gt;micromatch&gt;braces&gt;snapdragon&gt;source-map-resolve&gt;atob </li>
+								<li>gulp&gt;glob-watcher&gt;chokidar&gt;readdirp&gt;micromatch&gt;extglob&gt;expand-brackets&gt;snapdragon&gt;source-map-resolve&gt;atob </li>
+								<li>gulp&gt;glob-watcher&gt;chokidar&gt;readdirp&gt;micromatch&gt;extglob&gt;snapdragon&gt;source-map-resolve&gt;atob </li>
+								<li>gulp&gt;glob-watcher&gt;chokidar&gt;readdirp&gt;micromatch&gt;nanomatch&gt;snapdragon&gt;source-map-resolve&gt;atob </li>
+								<li>gulp&gt;glob-watcher&gt;chokidar&gt;readdirp&gt;micromatch&gt;snapdragon&gt;source-map-resolve&gt;atob </li>
+								<li>gulp&gt;gulp-cli&gt;liftoff&gt;findup-sync&gt;micromatch&gt;braces&gt;snapdragon&gt;source-map-resolve&gt;atob </li>
+								<li>gulp&gt;gulp-cli&gt;liftoff&gt;findup-sync&gt;micromatch&gt;extglob&gt;expand-brackets&gt;snapdragon&gt;source-map-resolve&gt;atob </li>
+								<li>gulp&gt;gulp-cli&gt;liftoff&gt;findup-sync&gt;micromatch&gt;extglob&gt;snapdragon&gt;source-map-resolve&gt;atob </li>
+								<li>gulp&gt;gulp-cli&gt;liftoff&gt;findup-sync&gt;micromatch&gt;nanomatch&gt;snapdragon&gt;source-map-resolve&gt;atob </li>
+								<li>gulp&gt;gulp-cli&gt;liftoff&gt;findup-sync&gt;micromatch&gt;snapdragon&gt;source-map-resolve&gt;atob </li>
+								<li>gulp&gt;gulp-cli&gt;matchdep&gt;findup-sync&gt;micromatch&gt;braces&gt;snapdragon&gt;source-map-resolve&gt;atob </li>
+								<li>gulp&gt;gulp-cli&gt;matchdep&gt;findup-sync&gt;micromatch&gt;extglob&gt;expand-brackets&gt;snapdragon&gt;source-map-resolve&gt;atob </li>
+								<li>gulp&gt;gulp-cli&gt;matchdep&gt;findup-sync&gt;micromatch&gt;extglob&gt;snapdragon&gt;source-map-resolve&gt;atob </li>
+								<li>gulp&gt;gulp-cli&gt;matchdep&gt;findup-sync&gt;micromatch&gt;nanomatch&gt;snapdragon&gt;source-map-resolve&gt;atob </li>
+								<li>gulp&gt;gulp-cli&gt;matchdep&gt;findup-sync&gt;micromatch&gt;snapdragon&gt;source-map-resolve&gt;atob </li>
+								<li>gulp&gt;gulp-cli&gt;matchdep&gt;micromatch&gt;braces&gt;snapdragon&gt;source-map-resolve&gt;atob </li>
+								<li>gulp&gt;gulp-cli&gt;matchdep&gt;micromatch&gt;extglob&gt;expand-brackets&gt;snapdragon&gt;source-map-resolve&gt;atob </li>
+								<li>gulp&gt;gulp-cli&gt;matchdep&gt;micromatch&gt;extglob&gt;snapdragon&gt;source-map-resolve&gt;atob </li>
+								<li>gulp&gt;gulp-cli&gt;matchdep&gt;micromatch&gt;nanomatch&gt;snapdragon&gt;source-map-resolve&gt;atob </li>
+								<li>gulp&gt;gulp-cli&gt;matchdep&gt;micromatch&gt;snapdragon&gt;source-map-resolve&gt;atob </li>
+								<li>gulp-copy&gt;gulp&gt;liftoff&gt;findup-sync&gt;micromatch&gt;braces&gt;snapdragon&gt;source-map-resolve&gt;atob </li>
+								<li>gulp-copy&gt;gulp&gt;liftoff&gt;findup-sync&gt;micromatch&gt;extglob&gt;expand-brackets&gt;snapdragon&gt;source-map-resolve&gt;atob </li>
+								<li>gulp-copy&gt;gulp&gt;liftoff&gt;findup-sync&gt;micromatch&gt;extglob&gt;snapdragon&gt;source-map-resolve&gt;atob </li>
+								<li>gulp-copy&gt;gulp&gt;liftoff&gt;findup-sync&gt;micromatch&gt;nanomatch&gt;snapdragon&gt;source-map-resolve&gt;atob </li>
+								<li>gulp-copy&gt;gulp&gt;liftoff&gt;findup-sync&gt;micromatch&gt;snapdragon&gt;source-map-resolve&gt;atob </li>
+								<li>gulp-watch&gt;chokidar&gt;anymatch&gt;micromatch&gt;braces&gt;snapdragon&gt;source-map-resolve&gt;atob </li>
+								<li>gulp-watch&gt;chokidar&gt;anymatch&gt;micromatch&gt;extglob&gt;expand-brackets&gt;snapdragon&gt;source-map-resolve&gt;atob </li>
+								<li>gulp-watch&gt;chokidar&gt;anymatch&gt;micromatch&gt;extglob&gt;snapdragon&gt;source-map-resolve&gt;atob </li>
+								<li>gulp-watch&gt;chokidar&gt;anymatch&gt;micromatch&gt;nanomatch&gt;snapdragon&gt;source-map-resolve&gt;atob </li>
+								<li>gulp-watch&gt;chokidar&gt;anymatch&gt;micromatch&gt;snapdragon&gt;source-map-resolve&gt;atob </li>
+								<li>gulp-watch&gt;chokidar&gt;braces&gt;snapdragon&gt;source-map-resolve&gt;atob </li>
+								<li>gulp-watch&gt;chokidar&gt;readdirp&gt;micromatch&gt;braces&gt;snapdragon&gt;source-map-resolve&gt;atob </li>
+								<li>gulp-watch&gt;chokidar&gt;readdirp&gt;micromatch&gt;extglob&gt;expand-brackets&gt;snapdragon&gt;source-map-resolve&gt;atob </li>
+								<li>gulp-watch&gt;chokidar&gt;readdirp&gt;micromatch&gt;extglob&gt;snapdragon&gt;source-map-resolve&gt;atob </li>
+								<li>gulp-watch&gt;chokidar&gt;readdirp&gt;micromatch&gt;nanomatch&gt;snapdragon&gt;source-map-resolve&gt;atob </li>
+								<li>gulp-watch&gt;chokidar&gt;readdirp&gt;micromatch&gt;snapdragon&gt;source-map-resolve&gt;atob </li>
+								<li>webpack&gt;watchpack&gt;chokidar&gt;anymatch&gt;micromatch&gt;braces&gt;snapdragon&gt;source-map-resolve&gt;atob </li>
+								<li>webpack&gt;watchpack&gt;chokidar&gt;anymatch&gt;micromatch&gt;extglob&gt;expand-brackets&gt;snapdragon&gt;source-map-resolve&gt;atob </li>
+								<li>webpack&gt;watchpack&gt;chokidar&gt;anymatch&gt;micromatch&gt;extglob&gt;snapdragon&gt;source-map-resolve&gt;atob </li>
+								<li>webpack&gt;watchpack&gt;chokidar&gt;anymatch&gt;micromatch&gt;nanomatch&gt;snapdragon&gt;source-map-resolve&gt;atob </li>
+								<li>webpack&gt;watchpack&gt;chokidar&gt;anymatch&gt;micromatch&gt;snapdragon&gt;source-map-resolve&gt;atob </li>
+								<li>webpack&gt;watchpack&gt;chokidar&gt;braces&gt;snapdragon&gt;source-map-resolve&gt;atob </li>
+								<li>webpack&gt;watchpack&gt;chokidar&gt;readdirp&gt;micromatch&gt;braces&gt;snapdragon&gt;source-map-resolve&gt;atob </li>
+								<li>webpack&gt;watchpack&gt;chokidar&gt;readdirp&gt;micromatch&gt;extglob&gt;expand-brackets&gt;snapdragon&gt;source-map-resolve&gt;atob </li>
+								<li>webpack&gt;watchpack&gt;chokidar&gt;readdirp&gt;micromatch&gt;extglob&gt;snapdragon&gt;source-map-resolve&gt;atob </li>
+								<li>webpack&gt;watchpack&gt;chokidar&gt;readdirp&gt;micromatch&gt;nanomatch&gt;snapdragon&gt;source-map-resolve&gt;atob </li>
+								<li>webpack&gt;watchpack&gt;chokidar&gt;readdirp&gt;micromatch&gt;snapdragon&gt;source-map-resolve&gt;atob </li>
+							</ul>
+
+                        <h3>Remediation</h3>
+                        <p class="card-text"><p>Update to version 2.1.0 or later.</p>
+</p>
+                         
+                        <h3>References</h3>
+                        <p class="card-text"><ul>
+<li><a href="https://hackerone.com/reports/321686">HackerOne Report</a></li>
+</ul>
+</p>
+                         
+                        <a href="https://npmjs.com/advisories/646" class="btn btn-primary">More about this vulnerability</a>
+                    </div>
+                </div>
+            </div>            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-body">
+                        <h1 class="card-title">
+                            <span class="badge badge-secondary">moderate</span>
+                            Out-of-bounds Read
+                        </h1>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <ul>
+                                    <li>Module:
+                                        <a href="https://npmjs.com/package/stringstream">stringstream</a>
+                                    </li>
+                                    <li>Published: May 16th 2018 </li>
+                                    <li>Reported by: Сковорода Никита Андреевич</li>
+                                    <li>CWE-125</li>
+                                </ul>
+                            </div>
+                            <div class="col-md-6">
+                                <ul>
+                                    <li>Vulnerable: &lt;&#x3D;0.0.5</li>
+                                    <li>Patched: &gt;&#x3D;0.0.6</li>
+                                    <li>CVSS: 2</li>
+                                </ul>
+                            </div>
+                        </div>
+                        <h3>Overview</h3>
+                        <p class="card-text"><p>All versions of <code>stringstream</code> are vulnerable to out-of-bounds read as it allocates uninitialized Buffers when number is passed in input stream on Node.js 4.x and below.</p>
+</p>
+
+                        <h3>Findings</h3>
+							<ul>
+								<li>electron-rebuild&gt;node-gyp&gt;request&gt;stringstream </li>
+								<li>node-gyp&gt;request&gt;stringstream </li>
+							</ul>
+
+                        <h3>Remediation</h3>
+                        <p class="card-text"><p>No fix is currently available for this vulnerability. It is our recommendation to not install or use this module if user input is being passed in to <code>stringstream</code>.</p>
+</p>
+                         
+                        <h3>References</h3>
+                        <p class="card-text"><ul>
+<li><a href="https://hackerone.com/reports/321670">HackerOne Report</a></li>
+<li><a href="https://github.com/mhart/StringStream/blob/v0.0.5/stringstream.js#L32">https://github.com/mhart/StringStream/blob/v0.0.5/stringstream.js#L32</a></li>
+</ul>
+</p>
+                         
+                        <a href="https://npmjs.com/advisories/664" class="btn btn-primary">More about this vulnerability</a>
+                    </div>
+                </div>
+            </div>            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-body">
+                        <h1 class="card-title">
+                            <span class="badge badge-primary">low</span>
+                            Prototype Pollution
+                        </h1>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <ul>
+                                    <li>Module:
+                                        <a href="https://npmjs.com/package/merge">merge</a>
+                                    </li>
+                                    <li>Published: November 5th 2018 </li>
+                                    <li>Reported by: asgerf</li>
+                                    <li>CWE-471</li>
+                                    <li>CVE-2018-16469</li>
+                                </ul>
+                            </div>
+                            <div class="col-md-6">
+                                <ul>
+                                    <li>Vulnerable: &lt;&#x3D;1.2.0</li>
+                                    <li>Patched: &gt;&#x3D;1.2.1</li>
+                                    <li>CVSS: 2</li>
+                                </ul>
+                            </div>
+                        </div>
+                        <h3>Overview</h3>
+                        <p class="card-text"><p>Versions of <code>merge</code> before 1.2.1 are vulnerable to prototype pollution. The <code>merge.recursive</code> function can be tricked into adding or modifying properties of the Object prototype.</p>
+</p>
+
+                        <h3>Findings</h3>
+							<ul>
+								<li>sass-lint&gt;merge </li>
+							</ul>
+
+                        <h3>Remediation</h3>
+                        <p class="card-text"><p>Update to version 1.2.1 or later.</p>
+</p>
+                         
+                        <h3>References</h3>
+                        <p class="card-text"><ul>
+<li><a href="https://hackerone.com/reports/381194">HackerOne Report</a></li>
+</ul>
+</p>
+                         
+                        <a href="https://npmjs.com/advisories/722" class="btn btn-primary">More about this vulnerability</a>
+                    </div>
+                </div>
+            </div>            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-body">
+                        <h1 class="card-title">
+                            <span class="badge badge-warning">high</span>
+                            Arbitrary File Overwrite
+                        </h1>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <ul>
+                                    <li>Module:
+                                        <a href="https://npmjs.com/package/decompress-zip">decompress-zip</a>
+                                    </li>
+                                    <li>Published: January 30th 2019 </li>
+                                    <li>Reported by: Snyk Security Team</li>
+                                    <li>CWE-22</li>
+                                </ul>
+                            </div>
+                            <div class="col-md-6">
+                                <ul>
+                                    <li>Vulnerable: &lt;0.2.2 || &gt;&#x3D;0.3.0 &lt;0.3.2</li>
+                                    <li>Patched: &gt;&#x3D;0.2.2 &lt;0.3.0 || &gt;&#x3D;0.3.2</li>
+                                    <li>CVSS: 7</li>
+                                </ul>
+                            </div>
+                        </div>
+                        <h3>Overview</h3>
+                        <p class="card-text"><p>Vulnerable versions of <code>decompress-zip</code> are affected by the Zip-Slip vulnerability, an arbitrary file write vulnerability. The vulnerability occurs because <code>decompress-zip</code> does not verify that extracted files do not resolve to targets outside of the extraction root directory.</p>
+</p>
+
+                        <h3>Findings</h3>
+							<ul>
+								<li>asar&gt;mksnapshot&gt;decompress-zip </li>
+							</ul>
+
+                        <h3>Remediation</h3>
+                        <p class="card-text"><p>For <code>decompress-zip</code> 0.2.x upgrade to 0.2.2 or later.
+For <code>decompress-zip</code> 0.3.x upgrade to 0.3.2 or later.</p>
+</p>
+                         
+                        <h3>References</h3>
+                        <p class="card-text"><ul>
+<li><a href="https://snyk.io/research/zip-slip-vulnerability">Snyk Report</a></li>
+<li><a href="https://github.com/nodejs/security-wg/blob/master/vuln/npm/488.json">Node.js Security-wg</a></li>
+</ul>
+</p>
+                         
+                        <a href="https://npmjs.com/advisories/777" class="btn btn-primary">More about this vulnerability</a>
+                    </div>
+                </div>
+            </div>            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-body">
+                        <h1 class="card-title">
+                            <span class="badge badge-secondary">moderate</span>
+                            Prototype Pollution
+                        </h1>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <ul>
+                                    <li>Module:
+                                        <a href="https://npmjs.com/package/lodash">lodash</a>
+                                    </li>
+                                    <li>Published: February 13th 2019 </li>
+                                    <li>Reported by: asgerf</li>
+                                    <li>CWE-471</li>
+                                    <li>CVE-2018-16487</li>
+                                </ul>
+                            </div>
+                            <div class="col-md-6">
+                                <ul>
+                                    <li>Vulnerable: &lt;4.17.11</li>
+                                    <li>Patched: &gt;&#x3D;4.17.11</li>
+                                    <li>CVSS: 3</li>
+                                </ul>
+                            </div>
+                        </div>
+                        <h3>Overview</h3>
+                        <p class="card-text"><p>Versions of <code>lodash</code> before 4.17.5 are vulnerable to prototype pollution. </p>
+<p>The vulnerable functions are &#39;defaultsDeep&#39;, &#39;merge&#39;, and &#39;mergeWith&#39; which allow a malicious user to modify the prototype of <code>Object</code> via <code>{constructor: {prototype: {...}}}</code> causing the addition or modification of an existing property that will exist on all objects.</p>
+</p>
+
+                        <h3>Findings</h3>
+							<ul>
+								<li>gulp-copy&gt;gulp&gt;vinyl-fs&gt;glob-watcher&gt;gaze&gt;globule&gt;lodash </li>
+							</ul>
+
+                        <h3>Remediation</h3>
+                        <p class="card-text"><p>Update to version 4.17.11 or later.</p>
+</p>
+                         
+                        <h3>References</h3>
+                        <p class="card-text"><ul>
+<li><a href="https://hackerone.com/reports/380873">HackerOne Report</a></li>
+</ul>
+</p>
+                         
+                        <a href="https://npmjs.com/advisories/782" class="btn btn-primary">More about this vulnerability</a>
+                    </div>
+                </div>
+            </div>            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-body">
+                        <h1 class="card-title">
+                            <span class="badge badge-primary">low</span>
+                            Regular Expression Denial of Service
+                        </h1>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <ul>
+                                    <li>Module:
+                                        <a href="https://npmjs.com/package/braces">braces</a>
+                                    </li>
+                                    <li>Published: February 15th 2019 </li>
+                                    <li>Reported by: Santosh Rao</li>
+                                    <li>CWE-185</li>
+                                </ul>
+                            </div>
+                            <div class="col-md-6">
+                                <ul>
+                                    <li>Vulnerable: &lt;2.3.1</li>
+                                    <li>Patched: &gt;&#x3D;2.3.1</li>
+                                    <li>CVSS: 4</li>
+                                </ul>
+                            </div>
+                        </div>
+                        <h3>Overview</h3>
+                        <p class="card-text"><p>Version of <code>braces</code> prior to 2.3.1 are vulnerable to Regular Expression Denial of Service (ReDoS). Untrusted input may cause catastrophic backtracking while matching regular expressions. This can cause the application to be unresponsive leading to Denial of Service.</p>
+</p>
+
+                        <h3>Findings</h3>
+							<ul>
+								<li>gulp-watch&gt;anymatch&gt;micromatch&gt;braces </li>
+							</ul>
+
+                        <h3>Remediation</h3>
+                        <p class="card-text"><p>Upgrade to version 2.3.1 or higher.</p>
+</p>
+                         
+                        <h3>References</h3>
+                        <p class="card-text"><ul>
+<li><a href="https://github.com/micromatch/braces/commit/abdafb0cae1e0c00f184abbadc692f4eaa98f451">GitHub Commit</a></li>
+</ul>
+</p>
+                         
+                        <a href="https://npmjs.com/advisories/786" class="btn btn-primary">More about this vulnerability</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>
